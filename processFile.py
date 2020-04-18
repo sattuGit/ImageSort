@@ -29,8 +29,8 @@ def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
     for subdir, dirs, files in os.walk(rootDir):
         logger.info('--------------------------------------------------')
         logger.info('Current DIR ' + subdir)
-        validCnt = 0
-        moveCnt = 0
+        validCnt    = 0
+        moveCnt     = 0
 
         for file in files:
             if fName.getExt(file) in opList or not opList:
@@ -47,11 +47,10 @@ def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
                             if not fOps.moveFile(os.path.join(subdir , file),os.path.join(targetDir , file)):
                                 logger.critical('File Movement failed ')
                                 continue
+                            moveCnt+=1
                         else:
                             continue
-
-
-                elif op == "MOVE_FILE":
+                elif op == "COPY_FILE":
                     obj = imgObj(os.path.join(subdir , file))
                     if obj.isMetaFound():
                         logger.info('MetaData is Available ')
