@@ -1,8 +1,12 @@
 #https://pillow.readthedocs.io/en/stable/
 #https://pypi.org/project/PIL/
 import os
-from PIL import Image
 import datetime
+import logging
+from PIL import Image
+
+logger = logging.getLogger()
+
 
 def DMStoDD(gioTag):
     if gioTag.get(1)=='N' and gioTag.get(3)=='E':
@@ -27,26 +31,33 @@ class imgObj:
             try:
                 fp = Image.open(url,'r')
                 self.__metaData = fp._getexif()
-                print(self.__metaData)
+                #print(self.__metaData)
                 self._isExifFound = True
                 self._sysModifyDate = datetime.datetime.fromtimestamp(os.path.getmtime(url)).strftime('%Y%m%d')
             except IOError:
                 self._invalid=True
-                print('Excepion Occurs '+IOError)
+                print('Excepion Occurs '+str(IOError))
+                logger.critical('FILE IO ERROR '+str(IOError))
+            except:
+                self._invalid=True
+                print('Unknown exception')
+                logger.critical('Unknown exception')
             finally:
-                fp.close()
+                if not self._invalid:
+                    fp.close()
                 # process Data
                 if self.__metaData:
                     self._width = self.__metaData.get(256)
                     self._hight = self.__metaData.get(257)
-                    tmpTime =datetime.datetime.strptime(self.__metaData.get(306),'%Y:%m:%d %H:%M:%S')
-                    self._metaCreateDate = tmpTime.strftime('%Y%m%d')
+                    if self.__metaData.get(306):
+                        tmpTime =datetime.datetime.strptime(self.__metaData.get(306),'%Y:%m:%d %H:%M:%S')
+                        self._metaCreateDate = tmpTime.strftime('%Y%m%d')
                     self.gioTag = self.__metaData.get(34853)
                     if self.gioTag:
                         tmp = str(self.gioTag.get(29))
-                        print(tmp)
+                        #print(tmp)
                         self._gioCreateDate = tmp.replace(':','')
-                        print(tmp.replace(":",""))
+                        #print(tmp.replace(":",""))
                     self.maker  = self.__metaData.get(271)
                     if self.maker:  self.maker = self.maker.strip()
                     self.model  = self.__metaData.get(272)
