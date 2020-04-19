@@ -6,12 +6,12 @@ import processFile as fProcess
 
 logging.basicConfig(filename="ImageSorting.log", format='%(asctime)s %(levelname)s %(message)s', filemode='w')
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 def main():
     moveInParent    =   True    #By Default move file opertaion move all file inside root
     OPeration       =   "NONE"
-    rootDir = '/home/satendra/Desktop/8feb2020_bck'
+    rootDir = '/home/satendra/Desktop/FINAL/test_1'
     opList = []
     patternList=[]
     pattern=""

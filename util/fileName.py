@@ -12,7 +12,7 @@ def isKeyWordFound(source,key,case=False):
         else:
             return False
     else:
-        logger.debug(source.upper()+' '+key.upper())
+        #logger.debug(source.upper()+' '+key.upper())
         if source.upper().find(key.upper())>-1:return True
         else:
             return False
