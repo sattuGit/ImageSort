@@ -1,14 +1,21 @@
 import os
 import logging
+from symbol import nonlocal_stmt
+from urllib.request import FancyURLopener
+
 import util.fileName        as fName
-import util.imgMetaData     as imgObj
+#import util.imgMetaData     as imgObj
+from util.imgMetaData import imgObj
 import util.fileDirOSOps    as fOps
 import util.fileUnique      as booti
 logger = logging.getLogger()
 pelter = {}
 filterBase = 'ImageSort_move'
 duplicateRoot = 'DUPLICATE'
-def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
+copyDir = '/home/satendra/Desktop/DUMP_YARD/'
+metaDir = "FILE_WITH_INFO"
+nonMetaDir = "FILE_WITH_NO_INFO"
+def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True,duplicatFilter=True):
     logger.info('ROOT IS           ['+rootDir+']')
     logger.info('File Type         ['+str(opList)+']')
     logger.info('Operation         ['+op+']')
@@ -21,12 +28,36 @@ def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
     logger.info('Current valid file type are :' + str(opList))
     logger.info('--------------------------------------------------')
 
-    moveDirBase=os.path.join(rootDir,filterBase)
+    moveDirBase=os.path.join(copyDir,filterBase)
+    if not fOps.createDir(copyDir,filterBase):
+        logger.critical('Directory ['+moveDirBase+'] creation failed')
+
+    metaFileDir=os.path.join(moveDirBase,'META_FILE')
+    if not fOps.createDir(moveDirBase,'META_FILE'):
+        logger.critical('Directory ['+metaFileDir+'] creation failed')
+        return False
+
+    nonMetaFileDir=os.path.join(moveDirBase,'NON_META_FILE')
+    if not fOps.createDir(moveDirBase,'NON_META_FILE'):
+        logger.critical('Directory ['+nonMetaFileDir+'] creation failed')
+        return False
+
     duplicateBase = os.path.join(moveDirBase,duplicateRoot)
     if fOps.createDir(rootDir,filterBase): # ./filterBase
         for sub in pattern:
             if not fOps.createDir(moveDirBase,sub): #./filterBase/pattern
                 logger.critical('Sub directory '+sub+' creation failed')
+                return False
+            else:
+                tmpPath = os.path.join(moveDirBase,sub)
+                if not fOps.createDir(moveDirBase,metaDir):
+                    logger.critical('Directory ['+metaDir+'] creation failed')
+                    return False
+
+                if not fOps.createDir(moveDirBase,nonMetaDir):
+                    logger.critical('Directory ['+nonMetaDir+'] creation failed')
+                    return False
+
 
         if not fOps.createDir(moveDirBase,duplicateRoot): #./filterBase/duplicateRoot
             logger.critical('Pattern Directory creation Failed ')
@@ -41,17 +72,22 @@ def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
         validCnt    = 0
         moveCnt     = 0
 
+        # if subdir == moveDirBase :
+        #     logger.debug('IGNORE WORKING DIR '+subdir+'#'+moveDirBase)
+        #     continue
+
+
         for file in files:
             fileAbsPath = os.path.join(subdir,file)
             print('Processing...['+fileAbsPath+']')
-            logger.info('=====START')
-            if fName.getExt(file) in opList or not opList:
+            #logger.info('=====START')
+            if fName.getExt(file) in opList :
                 validCnt += 1
+
                 # filter duplicate files
-                if duplicateFilter(fileAbsPath,duplicateBase):
-                    continue
-                else:
-                    logger.info('UNIQUE FILE....'+fileAbsPath)
+                if duplicatFilter:
+                    if duplicateFilter(fileAbsPath,duplicateBase):
+                        continue
 
                 if op == "MOVE_FILE":
                     logger.debug('INSIDE MOVE BLOCK')
@@ -68,23 +104,35 @@ def processFullTree(rootDir,opList,op="NONE",pattern=[],breakStructure=True):
                                 moveCnt+=1
                                 break
 
+                    print('***********'+fileAbsPath)
+                    if isMeta(fileAbsPath):
+                        if not fOps.moveFile(fileAbsPath,os.path.join(metaFileDir,file)):
+                            logger.critical('File Movement failed ')
+                            break
+                    else:
+                        if not fOps.moveFile(fileAbsPath,os.path.join(nonMetaFileDir,file)):
+                            logger.critical('File Movement failed ')
+                            break
 
-
-                #elif op == "COPY_FILE":
-                #    obj = imgObj(os.path.join(subdir , file))
-                #    if obj.isMetaFound():
-                #        logger.info('MetaData is Available ')
-                #        logger.info(str(obj.getMaker()) + "   " + str(obj.getModel()))
-                #    else:
-                #        logger.info('MetaData NOT FOUND ')
-                #        logger.debug(obj)
-                #
                 else:
                     logger.warning('Unknown Operation')
             else:
                 logger.debug('Ignore file' + file)
         logger.info('Total File Avialble [' + str(len(files)) + '] Processed [' + str(validCnt) + '] Ignore [' + str(
             len(files) - validCnt) + ']')
+    return True
+
+def isMeta(url):
+    try:
+        #print(url)
+        obj = imgObj(url)
+        #print(obj)
+        if obj :
+            return obj.isMetaFound()
+    except :
+        print('File not loadable ')
+        logger.debug('File '+url+' is not loadable ')
+    return False
 
 def duplicateFilter(url,base):
     fileName =os.path.basename(url)
@@ -122,7 +170,7 @@ def checkDuplicate(url):
         return ""
 
 def main():
-    i=0
+    print(isMeta('/home/satendra/Desktop/git/ImageSort/sample/IMG-20190428-WA0002.jpg'))
 
 if __name__ == "__main__":
     main()

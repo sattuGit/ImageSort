@@ -4,14 +4,15 @@ import logging
 
 import processFile as fProcess
 
-logging.basicConfig(filename="ImageSorting.log", format='%(asctime)s %(levelname)s %(message)s', filemode='w')
+#logging.basicConfig(filename="ImageSorting.log", format='%(asctime)s %(levelname)s %(message)s', filemode='w')
+logging.basicConfig(filename="ImageSorting.log", format='[%(levelname)s] %(message)s', filemode='w')
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def main():
     moveInParent    =   True    #By Default move file opertaion move all file inside root
     OPeration       =   "NONE"
-    rootDir = '/home/satendra/Desktop/FINAL/test_1'
+    rootDir = '/home/satendra/Desktop/FINAL/'
     opList = []
     patternList=[]
     pattern=""
@@ -53,7 +54,8 @@ def main():
         logger.warning('Invalid/Unknown Arguments .. call -help ')
         return False
 
-    fProcess.processFullTree(rootDir,opList,OPeration,patternList,moveInParent)
+    if not fProcess.processFullTree(rootDir,opList,OPeration,patternList,moveInParent):
+        print('ERRORR................')
 
 if __name__ == "__main__":
     main()

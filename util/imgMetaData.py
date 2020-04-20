@@ -7,14 +7,6 @@ from PIL import Image
 
 logger = logging.getLogger()
 
-
-def DMStoDD(gioTag):
-    if gioTag.get(1)=='N' and gioTag.get(3)=='E':
-        lat =gioTag.get(2).split(',')
-        lon =gioTag.get(4).split(',')
-   #self.gpsDD['LAT']=
-   # TO DO calculate ( x/y, p/q, l/m as (x/y)/1+(p/q)/60+(l/m)/3600  as cordinate
-
 class imgObj:
     _invalid = False
     _isExifFound = False
@@ -27,22 +19,24 @@ class imgObj:
     selfi =False
     gioTag = ""
     def __init__(self,url):
+        #print('INSIDDE INIT '+url)
         if os.path.isfile(url):
             try:
+                #print('inside class constructor url'+url)
                 fp = Image.open(url,'r')
                 self.__metaData = fp._getexif()
-                #print(self.__metaData)
-                self._isExifFound = True
+                if self.__metaData: self._isExifFound = True
                 self._sysModifyDate = datetime.datetime.fromtimestamp(os.path.getmtime(url)).strftime('%Y%m%d')
             except IOError:
                 self._invalid=True
-                print('Excepion Occurs '+str(IOError))
+                #print('Excepion Occurs '+str(IOError))
                 logger.critical('FILE IO ERROR '+str(IOError))
             except:
                 self._invalid=True
-                print('Unknown exception')
+                #print('Unknown exception')
                 logger.critical('Unknown exception')
             finally:
+                #print('final')
                 if not self._invalid:
                     fp.close()
                 # process Data
@@ -66,6 +60,7 @@ class imgObj:
 
                 #print(self.model)
         else:
+            #print('else part')
             self._invalid = True
 
     def __del__(self):
