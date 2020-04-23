@@ -3,11 +3,11 @@ import shutil
 import filecmp
 import logging
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 def createDir(path,dirName):
     if os.path.isdir(os.path.join(path,dirName)): return True
-    #logger.debug(path+' '+dirName)
     target=os.path.join(path,dirName)
-    #logger.debug(target)
     try:
         os.mkdir(target)
     except OSError:
@@ -38,12 +38,12 @@ def moveFile(source,target,checkIdentical=False,rename=False,patch="#"):
             try:
                 resPath = shutil.move(source,target)
             except:
-                logger.critical('Error whole move file '+source)
+                logger.critical('CORError while moving file ['+source+']>>['+target+']')
                 return False
 
             logger.debug('SHUTIL '+source+'##'+target+'##'+resPath)
             if not os.path.exists(resPath):
-                logger.critical('Error whole move file '+source+'||'+resPath)
+                logger.critical('CORError moved file not found ['+source+']>>['+target+']')
                 return False
             else:
                 logger.debug('ACTUAL MOVE DONE'+resPath)
@@ -54,11 +54,11 @@ def moveFile(source,target,checkIdentical=False,rename=False,patch="#"):
             try:
                 resPath = shutil.move(source,target)
             except:
-                logger.critical('Error whole move file '+source)
+                logger.critical('CORError while moving file ['+source+']>>['+target+']')
                 return False
             logger.debug('SHUTIL '+source+'##'+target+'##'+resPath)
             if not os.path.exists(resPath):
-                logger.critical('Error whole move file '+source)
+                logger.critical('CORError moved file not found ['+source+']>>['+target+']')
                 return False
             else:
                 logger.debug('ACTUAL MOVE DONE'+resPath)

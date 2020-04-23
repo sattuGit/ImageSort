@@ -1,21 +1,22 @@
-import os
 import sys
 import logging
 
 import processFile as fProcess
 
-#logging.basicConfig(filename="ImageSorting.log", format='%(asctime)s %(levelname)s %(message)s', filemode='w')
 logging.basicConfig(filename="ImageSorting.log", format='[%(levelname)s] %(message)s', filemode='w')
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 def main():
     moveInParent    =   True    #By Default move file opertaion move all file inside root
     OPeration       =   "NONE"
-    rootDir = '/home/satendra/Desktop/FINAL/'
+    baseDir = {
+                'rootDir' : '/home/satendra/Desktop/workYard/',
+                'copyDir' : '/home/satendra/Desktop/dumpYard/'
+               }
     opList = []
     patternList=[]
-    pattern=""
+
     if len(sys.argv) == 2 and sys.argv[1] == "-help":
         '''
         FOR HELP ImageSort.py -help
@@ -24,6 +25,11 @@ def main():
         print('     FileType  "filetype=.example1,.example2,..."  ALL is Default ** NO SPACE IN LIST ')
         print('     Operation "-mv/-cp/-RmEmpDir"')
         print('     pattern   "<freeStyleString should contain by file name CAN BE MULTIPLE separated by comma >"')
+        print(' Example ::  python ImageSort.py fileType=.jpg,.jpeg,.png -mv pattern=whatsapp,shaadi,jeevan,facebook,PicsArt,FB_,Screenshot')
+        print('             process only .jpg,.jpeg,.png Files only, rest file type will be ignored ')
+        print('             check pattern with file name from left to right , if match move to pattern dir "-mv for move"  ')
+        print('             breakStructure  is True by default .. i.e will create new structure for file movement ')
+        print('             duplicateRemove is True by default .. i.e will seperate all duplicate files  ')
         return True
     baseArg = int(1)
     if len(sys.argv) > baseArg and (sys.argv[1])[0:9]=='fileType=':
@@ -54,7 +60,7 @@ def main():
         logger.warning('Invalid/Unknown Arguments .. call -help ')
         return False
 
-    if not fProcess.processFullTree(rootDir,opList,OPeration,patternList,moveInParent):
+    if not fProcess.processFullTree(baseDir,opList,OPeration,patternList,moveInParent):
         print('ERRORR................')
 
 if __name__ == "__main__":
